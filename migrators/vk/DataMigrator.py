@@ -67,7 +67,7 @@ class DataMigrator:
             self.logger.log(f"Ошибка при миграции групп из {source_file}: {str(e)}")
             return 0
 
-    def migrate_posts(self, vk_cursor, target_cursor, source_file):
+    def migrate_posts(self, vk_cursor, target_cursor, source_file, event_detector):
         """Мигрирует данные из vk_posts в posts с анализом городов и адресов"""
         try:
             # Получаем все посты из VK базы с информацией о группах
@@ -113,16 +113,16 @@ class DataMigrator:
                         cities, addresses = self.text_analyzer.extract_locations_and_addresses(post_content)
                         cities_json = json.dumps(cities, ensure_ascii=False) if cities else "[]"
                         addresses_json = json.dumps(addresses, ensure_ascii=False) if addresses else "[]"
-
+                        is_event = event_detector.is_event_invitation(post_content)
                         # Добавляем новый пост с городами и адресами
                         target_cursor.execute("""
                             INSERT INTO posts (org_id, post_content, content, post_date, 
                                              post_likes, post_comments, post_reposts, 
-                                             post_images, images, post_id, cities, address)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                             post_images, images, post_id, cities, address, maybe_event)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """, (org_id, post_content, post_content, post_date,
                               post_likes, post_comments, post_reposts,
-                              post_images, post_images, post_id, cities_json, addresses_json))
+                              post_images, post_images, post_id, cities_json, addresses_json, is_event))
 
                         migrated_count += 1
 

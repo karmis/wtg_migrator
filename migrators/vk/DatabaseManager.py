@@ -44,7 +44,7 @@ class DatabaseManager:
             )
         """)
 
-        # Создаем таблицу posts с полями cities и address
+        # Создаем таблицу posts
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS posts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,6 +61,8 @@ class DatabaseManager:
                 post_id TEXT,
                 cities TEXT,
                 address TEXT,
+                maybe_event BOOLEAN,
+                is_published BOOLEAN DEFAULT 1,
                 FOREIGN KEY(org_id) REFERENCES orgs(id)
             )
         """)

@@ -6,6 +6,7 @@ import os
 
 from migrators.vk.DataMigrator import DataMigrator
 from migrators.vk.DatabaseManager import DatabaseManager
+from migrators.vk.EventDetector import EventDetector
 from migrators.vk.StatisticsCollector import StatisticsCollector
 from migrators.vk.TextAnalyzer import TextAnalyzer
 from migrators.vk.VKMigratorConfig import VKMigratorConfig
@@ -50,8 +51,9 @@ class VKDataMigrator:
             orgs_migrated = self.data_migrator.migrate_groups_to_orgs(vk_cursor, target_cursor, source_file)
 
             # Мигрируем посты
+            event_detector = EventDetector(self.logger)
             target_cursor = target_conn.cursor()
-            posts_migrated = self.data_migrator.migrate_posts(vk_cursor, target_cursor, source_file)
+            posts_migrated = self.data_migrator.migrate_posts(vk_cursor, target_cursor, source_file, event_detector)
 
             # Сохраняем изменения
             target_conn.commit()
