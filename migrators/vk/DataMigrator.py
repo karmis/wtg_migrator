@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sqlite3
 import json
 
 
@@ -89,11 +88,13 @@ class DataMigrator:
             posts_with_addresses = 0
 
             for post in vk_posts:
-                (group_id, post_content, post_date, post_likes, post_comments,
-                 post_reposts, post_images, vk_group_url, post_id, group_url) = post
+                (group_id, post_content, post_date, post_likes, post_comments, post_reposts, post_images, vk_group_url,
+                 post_id, group_url) = post
 
                 # Проверяем, есть ли уже такой пост в основной базе
                 check_url = group_url or vk_group_url
+                if post_id is None or check_url is None:
+                    continue
                 target_cursor.execute("""
                     SELECT p.id FROM posts p 
                     JOIN orgs o ON p.org_id = o.id 
@@ -120,8 +121,7 @@ class DataMigrator:
                                              post_likes, post_comments, post_reposts, 
                                              post_images, images, post_id, cities, address, maybe_event)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (org_id, post_content, post_content, post_date,
-                              post_likes, post_comments, post_reposts,
+                        """, (org_id, post_content, post_content, post_date, post_likes, post_comments, post_reposts,
                               post_images, post_images, post_id, cities_json, addresses_json, is_event))
 
                         migrated_count += 1
@@ -154,7 +154,7 @@ class DataMigrator:
                 else:
                     skipped_count += 1
                     content_preview = (post_content[:50] + "...") if post_content and len(post_content) > 50 else (
-                                post_content or "Нет контента")
+                            post_content or "Нет контента")
 
                     if skipped_count <= self.config.log_limit_examples:
                         self.logger.log(f"  - Пропущен пост {post_id} (уже существует)", False)
@@ -172,4 +172,3 @@ class DataMigrator:
         except Exception as e:
             self.logger.log(f"Ошибка при миграции постов из {source_file}: {str(e)}")
             return 0
-
