@@ -7,6 +7,7 @@ import os
 from migrators.vk.DataMigrator import DataMigrator
 from migrators.vk.DatabaseManager import DatabaseManager
 from migrators.vk.EventDetector import EventDetector
+
 from migrators.vk.StatisticsCollector import StatisticsCollector
 from migrators.vk.TextAnalyzer import TextAnalyzer
 from migrators.vk.VKMigratorConfig import VKMigratorConfig
